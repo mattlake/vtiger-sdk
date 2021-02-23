@@ -6,7 +6,9 @@
   },
   "require": {
     "php-di/php-di": "^6.3",
-    "symfony/http-client": "^5.2"
+    "symfony/http-client": "^5.2",
+    "nyholm/psr7": "^1.4",
+    "psr/http-client": "^1.0"
   },
   "require-dev": {
     "pestphp/pest": "^1.0"
