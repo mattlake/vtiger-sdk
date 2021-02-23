@@ -6,7 +6,11 @@ A simple and clean SDK for interacting with a Vtiger API
 Connections to the API can be made using the following syntax
 
 ```php
-$api = new VtigerApi();
-$api->url('https://yoururlhere');
-$token = $api->getToken($USERNAME, $SECRET);
+// verbose method
+$api = VtigerApi::getInstance();
+$api::url('https://yoururlhere');
+$api->authenticate($username, $secret);
+
+// Shorter version but same result
+$api = VtigerApi::url('https://urlhere')->authenticate($username, $secret);
 ```
