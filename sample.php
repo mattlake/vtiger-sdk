@@ -5,11 +5,14 @@ require_once './config.php';
 require_once './vendor/autoload.php';
 
 use Trunk\VtigerApi\VtigerApi;
+use DI\ContainerBuilder;
 
 // Create Dependency Injection Container
-$container = new DI\Container();
+$containerBuilder = new ContainerBuilder();
+$containerBuilder->addDefinitions(__DIR__ . '/deps.php');
+$container = $containerBuilder->build();
 
 // Create APi Instance
-$api = VtigerApi::getInstance($container->get('PSR18Client'))
-    ->url('https://yoururlhere')
+$api = VtigerApi::getInstance($container->get('HttpClient'))
+    ->url(config::BASE_URL)
     ->authenticate(config::USERNAME, config::SECRET);
