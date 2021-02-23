@@ -10,4 +10,6 @@ use Trunk\VtigerApi\VtigerApi;
 $container = new DI\Container();
 
 // Create APi Instance
-$api = VtigerApi::url('https://yoururlhere')->authenticate(config::USERNAME, config::SECRET);
+$api = VtigerApi::getInstance($container->get('PSR18Client'))
+    ->url('https://yoururlhere')
+    ->authenticate(config::USERNAME, config::SECRET);

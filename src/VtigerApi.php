@@ -2,29 +2,35 @@
 
 namespace Trunk\VtigerApi;
 
+use Symfony\Component\HttpClient\Psr18Client;
+
 class VtigerApi
 {
     private static $instance;
     private $url;
     private $accessToken;
 
+    private function __construct()
+    {
+    }
+
     public static function getInstance(): self
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new self();
+        if (empty(self::$instance)) {
+            self::$instance = new VtigerApi();
         }
 
         return self::$instance;
     }
 
-    public static function url(string $address = null)
+    public function url(string $address = null)
     {
         if (is_null($address)) {
-            return self::getInstance()->url;
+            return $this->url;
         }
 
-        self::getInstance()->url = $address;
-        return self::$instance;
+        $this->url = $address;
+        return $this;
     }
 
     public function authenticate(string $username, string $secret): self
