@@ -5,6 +5,7 @@
     }
   },
   "require": {
-    "pestphp/pest": "^1.0"
+    "pestphp/pest": "^1.0",
+    "php-di/php-di": "^6.3"
   }
 }

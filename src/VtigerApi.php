@@ -39,6 +39,6 @@ class VtigerApi
 
     private function getAccessToken(string $username, string $secret): string
     {
-
+        return 'Placeholder';
     }
 }
