@@ -2,19 +2,26 @@
 
 namespace Trunk\VtigerApi;
 
+require_once __DIR__.'/resources/RequestHandler.php';
+
+use Psr\Http\Client\ClientInterface;
+use Trunk\VtigerApi\Resources\RequestHandler;
+
 class VtigerApi
 {
     private static $instance;
     private $url;
     private $sessionId;
     private $client;
+    private $requestHandler;
 
-    private function __construct($client)
+    private function __construct(ClientInterface $client)
     {
         $this->client = $client;
+        $this->requestHandler = new RequestHandler($client);
     }
 
-    public static function getInstance($client): self
+    public static function getInstance(ClientInterface $client): self
     {
         if (empty(self::$instance)) {
             self::$instance = new VtigerApi($client);
@@ -43,9 +50,12 @@ class VtigerApi
 
     private function makeChallenge(string $username): string
     {
-        $request = $this->client->createRequest('GET', $this->url . '/webservice.php?operation=getchallenge&username=' . $username);
-        $response = $this->client->sendRequest($request);
-        $content = json_decode($response->getBody()->getContents(), true);
+        $params = [
+            'operation' => 'getchallenge',
+            'username' => $username
+        ];
+
+        $content = $this->requestHandler->get($this->url, $params);
 
         if ($content['success'] == false) {
             throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
@@ -67,29 +77,12 @@ class VtigerApi
             'accessKey' => $accessKey
         ];
 
-        $body = $this->client->createStream($this->convertArrayParamsToString($data));
-
-        $request = $this->client->createRequest('POST', $this->url . '/webservice.php')
-            ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
-            ->withBody($body);
-
-        $response = $this->client->sendRequest($request);
-
-        $content = json_decode($response->getBody()->getContents(), true);
+        $content = $this->requestHandler->post($this->url, $data);
 
         if ($content['success'] == true) {
             return $content['result']['sessionName'];
         }
 
         throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
-    }
-
-    private function convertArrayParamsToString(array $params): string
-    {
-        $string = '';
-        foreach ($params as $key => $value) {
-            $string .= $key . '=' . $value . '&';
-        }
-        return $string;
     }
 }
