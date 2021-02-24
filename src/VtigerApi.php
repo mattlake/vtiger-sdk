@@ -23,12 +23,8 @@ class VtigerApi
         return self::$instance;
     }
 
-    public function url(string $address = null)
+    public function setUrl(string $address = null): self
     {
-        if (is_null($address)) {
-            return $this->url;
-        }
-
         $this->url = $address;
         return $this;
     }
