@@ -55,4 +55,9 @@ class VtigerApi
 
         return $response['result']['token'];
     }
+
+    private function makeKey(string $token, string $secret):string
+    {
+        return md5($token.$secret);
+    }
 }
