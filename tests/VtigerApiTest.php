@@ -19,11 +19,11 @@ afterEach(function(){
 });
 
 it('can get instance', function(){
-    expect(VtigerApi::getInstance($this->container->get('HttpClient')))->toBeInstanceof(VtigerApi::class);
+    expect(VtigerApi::getInstance($this->container->get('Psr18Client')))->toBeInstanceof(VtigerApi::class);
 });
 
 it('can get and set url', function(){
-    $api = VtigerApi::getInstance($this->container->get('HttpClient'));
+    $api = VtigerApi::getInstance($this->container->get('Psr18Client'));
     $api->url('https://test');
     expect($api->url())->toBe('https://test');
     unset($api);

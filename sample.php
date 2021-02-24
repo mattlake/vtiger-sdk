@@ -13,6 +13,6 @@ $containerBuilder->addDefinitions(__DIR__ . '/deps.php');
 $container = $containerBuilder->build();
 
 // Create APi Instance
-$api = VtigerApi::getInstance($container->get('HttpClient'))
+$api = VtigerApi::getInstance($container->get('Psr18Client'))
     ->url(config::BASE_URL)
     ->authenticate(config::USERNAME, config::SECRET);

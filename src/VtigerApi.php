@@ -40,20 +40,23 @@ class VtigerApi
         }
 
         $token = $this->makeChallenge($username);
+        $hash = $this->makeKey($token, $secret);
 
-        echo $token . PHP_EOL;
+        echo $hash . PHP_EOL;
         return $this;
     }
 
     private function makeChallenge(string $username): string
     {
-        $response = $this->client->request('GET', $this->url . '/webservice.php?operation=getchallenge&username=' . $username)->toArray();
+        $request = $this->client->createRequest('GET', $this->url . '/webservice.php?operation=getchallenge&username=' . $username);
+        $response = $this->client->sendRequest($request);
+        $content = json_decode($response->getBody()->getContents(), true);
 
-        if ($response['success'] == false) {
-            throw new \Exception($response['error']['code'] . ': ' . $response['error']['message']);
+        if ($content['success'] == false) {
+            throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
         }
 
-        return $response['result']['token'];
+        return $content['result']['token'];
     }
 
     private function makeKey(string $token, string $secret):string
