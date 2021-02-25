@@ -20,6 +20,7 @@ $api = VtigerApi::getInstance($container->get('Psr18Client'))
 //var_dump($api->getListTypes());
 //var_dump($api->describeModule('Accounts'));
 $account = $api->retrieve('Accounts',62848);
-var_dump($account);
+//var_dump($api->get_account_hierarchy('Accounts', 62848));
+//var_dump($account);
 
 $api->logout();

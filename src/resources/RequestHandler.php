@@ -3,9 +3,6 @@
 namespace Trunk\VtigerApi\Resources;
 
 use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 
 class RequestHandler
 {
@@ -14,17 +11,17 @@ class RequestHandler
         $this->client = $client;
     }
 
-    public function get(string $endpoint, array $data = []): array
+    public function get(string $endpoint, array $data = []): VtigerApiResponse
     {
         $params = http_build_query($data);
 
         $request = $this->client->createRequest('GET', $endpoint . '?' . $params);
         $response = $this->client->sendRequest($request);
 
-        return json_decode($response->getBody()->getContents(), true);
+        return new VtigerApiResponse(json_decode($response->getBody()->getContents(), true));
     }
 
-    public function post(string $endpoint, array $options = []): array
+    public function post(string $endpoint, array $options = []): VtigerApiResponse
     {
         $body = $this->client->createStream(http_build_query($options));
 
@@ -34,6 +31,6 @@ class RequestHandler
 
         $response = $this->client->sendRequest($request);
 
-        return json_decode($response->getBody()->getContents(), true);
+        return new VtigerApiResponse(json_decode($response->getBody()->getContents(), true));
     }
 }
