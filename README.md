@@ -7,6 +7,6 @@ Connections to the API can be made using the following syntax
 
 ```php
 $api = VtigerApi::getInstance($Psr18HTTPClient)
-    ->setUrl('https://yoururlhere')
+    ->setEndpoint('https://yoururlhere/webservice.php')
     ->authenticate($username, $secret);
 ```

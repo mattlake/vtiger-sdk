@@ -11,21 +11,21 @@ class RequestHandler
         $this->client = $client;
     }
 
-    public function get(string $url, array $data): array
+    public function get(string $endpoint, array $data = []): array
     {
         $params = http_build_query($data);
 
-        $request = $this->client->createRequest('GET', $url . '/webservice.php' . '?' . $params);
+        $request = $this->client->createRequest('GET', $endpoint . '?' . $params);
         $response = $this->client->sendRequest($request);
 
         return json_decode($response->getBody()->getContents(), true);
     }
 
-    public function post(string $url, array $options): array
+    public function post(string $endpoint, array $options = []): array
     {
         $body = $this->client->createStream(http_build_query($options));
 
-        $request = $this->client->createRequest('POST', $url . '/webservice.php')
+        $request = $this->client->createRequest('POST', $endpoint)
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withBody($body);
 

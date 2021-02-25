@@ -14,7 +14,7 @@ $container = $containerBuilder->build();
 
 // Create APi Instance
 $api = VtigerApi::getInstance($container->get('Psr18Client'))
-    ->setUrl(config::BASE_URL)
+    ->setEndpoint(config::API_ENDPOINT)
     ->authenticate(config::USERNAME, config::SECRET);
 
-
+$api->logout();

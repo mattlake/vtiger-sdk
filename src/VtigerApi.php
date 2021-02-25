@@ -2,7 +2,7 @@
 
 namespace Trunk\VtigerApi;
 
-require_once __DIR__.'/resources/RequestHandler.php';
+require_once __DIR__ . '/resources/RequestHandler.php';
 
 use Psr\Http\Client\ClientInterface;
 use Trunk\VtigerApi\Resources\RequestHandler;
@@ -10,14 +10,12 @@ use Trunk\VtigerApi\Resources\RequestHandler;
 class VtigerApi
 {
     private static $instance;
-    private $url;
+    private $endpoint;
     private $sessionId;
-    private $client;
     private $requestHandler;
 
     private function __construct(ClientInterface $client)
     {
-        $this->client = $client;
         $this->requestHandler = new RequestHandler($client);
     }
 
@@ -30,15 +28,15 @@ class VtigerApi
         return self::$instance;
     }
 
-    public function setUrl(string $address = null): self
+    public function setEndpoint(string $address = null): self
     {
-        $this->url = $address;
+        $this->endpoint = $address;
         return $this;
     }
 
     public function authenticate(string $username, string $secret): self
     {
-        if (!isset($this->url)) {
+        if (!isset($this->endpoint)) {
             throw new \Exception('URL not set');
         }
 
@@ -55,7 +53,7 @@ class VtigerApi
             'username' => $username
         ];
 
-        $content = $this->requestHandler->get($this->url, $params);
+        $content = $this->requestHandler->get($this->endpoint, $params);
 
         if ($content['success'] == false) {
             throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
@@ -77,12 +75,18 @@ class VtigerApi
             'accessKey' => $accessKey
         ];
 
-        $content = $this->requestHandler->post($this->url, $data);
+        $content = $this->requestHandler->post($this->endpoint, $data);
 
         if ($content['success'] == true) {
             return $content['result']['sessionName'];
         }
 
         throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
+    }
+
+    public function logout(): void
+    {
+        $data = ['operation' => 'logout', 'sessionName' => $this->sessionId];
+        $this->requestHandler->post($this->endpoint, $data);
     }
 }
