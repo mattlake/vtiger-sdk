@@ -18,6 +18,8 @@ $api = VtigerApi::getInstance($container->get('Psr18Client'))
     ->authenticate(config::USERNAME, config::SECRET);
 
 //var_dump($api->getListTypes());
-var_dump($api->describeModule('Accounts')['fields'][1]);
+//var_dump($api->describeModule('Accounts'));
+$account = $api->retrieve('Accounts',62848);
+var_dump($account);
 
 $api->logout();

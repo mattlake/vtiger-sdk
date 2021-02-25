@@ -3,9 +3,11 @@
 namespace Trunk\VtigerApi;
 
 require_once __DIR__ . '/resources/RequestHandler.php';
+require_once __DIR__ . '/resources/VtigerEntity.php';
 
 use Psr\Http\Client\ClientInterface;
 use Trunk\VtigerApi\Resources\RequestHandler;
+use Trunk\VtigerApi\Resources\VtigerEntity;
 
 class VtigerApi
 {
@@ -13,6 +15,7 @@ class VtigerApi
     private $endpoint;
     private $sessionId;
     private $requestHandler;
+    private $idPrefixCache = [];
 
     private function __construct(ClientInterface $client)
     {
@@ -90,9 +93,9 @@ class VtigerApi
         $this->requestHandler->post($this->endpoint, $data);
     }
 
-    public function getListTypes():array
+    public function getListTypes(): array
     {
-        $data=['operation'=>'listtypes', 'sessionName' => $this->sessionId];
+        $data = ['operation' => 'listtypes', 'sessionName' => $this->sessionId];
         $content = $this->requestHandler->get($this->endpoint, $data);
 
         if ($content['success'] == true) {
@@ -102,15 +105,45 @@ class VtigerApi
         throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
     }
 
-    public function describeModule(string $moduleName) : array
+    public function describeModule(string $moduleName): array
     {
-        $data=['operation'=>'describe', 'sessionName' => $this->sessionId, 'elementType' => $moduleName];
+        $data = ['operation' => 'describe', 'sessionName' => $this->sessionId, 'elementType' => $moduleName];
         $content = $this->requestHandler->get($this->endpoint, $data);
 
-        if ($content['success'] == true) {
-            return $content['result'];
+        if ($content['success'] != true) {
+            throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
         }
 
-        throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
+        // Add prefix ID to Cache
+        $this->idPrefixCache[$moduleName] = $content['result']['idPrefix'];
+
+        return $content['result'];
+    }
+
+    public function retrieve(string $moduleName, int $id)
+    {
+        $webserviceId = $this->buildWebserviceId($moduleName, $id);
+        $data = ['operation' => 'retrieve', 'sessionName' => $this->sessionId, 'id' => $webserviceId];
+        try {
+            $content = $this->requestHandler->get($this->endpoint, $data);
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        if ($content['success'] != true) {
+            throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
+        }
+
+        return new VtigerEntity($moduleName, $content['result']);
+    }
+
+    public function buildWebserviceId(string $moduleName, int $id): string
+    {
+        if (!in_array($moduleName, $this->idPrefixCache)) {
+            $this->describeModule($moduleName);
+        }
+
+        return $this->idPrefixCache[$moduleName] . 'x' . $id;
     }
 }

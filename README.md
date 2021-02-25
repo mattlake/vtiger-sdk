@@ -86,3 +86,12 @@ The response would be structured like below
     'labelFields' => "accountname"
 ]
 ```
+
+### Retrieve Vtiger Entity Record
+To retrieve a record from Vtiger use the following call
+
+```php
+$account = $api->retrieve('Accounts',12345);
+```
+
+This will return a VtigerEntity object
