@@ -1,10 +1,13 @@
 <?php
 
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 use function DI\create;
-use Symfony\Component\HttpClient\Psr18Client;
 
 return [
     'Psr18Client' => function () {
-        return new Psr18Client();
+        return new \Symfony\Component\HttpClient\Psr18Client();
     },
 ];

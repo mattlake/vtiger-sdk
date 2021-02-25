@@ -17,4 +17,7 @@ $api = VtigerApi::getInstance($container->get('Psr18Client'))
     ->setEndpoint(config::API_ENDPOINT)
     ->authenticate(config::USERNAME, config::SECRET);
 
+//var_dump($api->getListTypes());
+var_dump($api->describeModule('Accounts')['fields'][1]);
+
 $api->logout();

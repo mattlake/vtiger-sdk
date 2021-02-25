@@ -89,4 +89,28 @@ class VtigerApi
         $data = ['operation' => 'logout', 'sessionName' => $this->sessionId];
         $this->requestHandler->post($this->endpoint, $data);
     }
+
+    public function getListTypes():array
+    {
+        $data=['operation'=>'listtypes', 'sessionName' => $this->sessionId];
+        $content = $this->requestHandler->get($this->endpoint, $data);
+
+        if ($content['success'] == true) {
+            return $content['result'];
+        }
+
+        throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
+    }
+
+    public function describeModule(string $moduleName) : array
+    {
+        $data=['operation'=>'describe', 'sessionName' => $this->sessionId, 'elementType' => $moduleName];
+        $content = $this->requestHandler->get($this->endpoint, $data);
+
+        if ($content['success'] == true) {
+            return $content['result'];
+        }
+
+        throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
+    }
 }

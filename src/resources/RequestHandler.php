@@ -3,6 +3,9 @@
 namespace Trunk\VtigerApi\Resources;
 
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 
 class RequestHandler
 {
