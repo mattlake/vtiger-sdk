@@ -17,17 +17,16 @@ require_once __DIR__ . '/Http/VtigerResponse.php';
 class VtigerApi
 {
     /**
-     * SessionId used for authentication, populated by login method
+     * Session Name used for authentication, populated by login method
      * @var string
      */
-    private $sessionId;
+    private $sessionName;
     /**
      * The Vtiger Api endpoint
      * eg. https://www.yourvtigerinstance.com/webservice.php
      * @var string
      */
     private $endpoint;
-
     /**
      * @var Psr18Client
      */
@@ -64,7 +63,7 @@ class VtigerApi
     {
         $token = $this->makeChallenge($username);
         $accessKey = $this->makeKey($token, $secret);
-        $this->sessionId = $this->getSessionId($username, $accessKey);
+        $this->sessionName = $this->getSessionId($username, $accessKey);
         return $this;
     }
 
@@ -106,7 +105,6 @@ class VtigerApi
      */
     private function getSessionId(string $username, string $accessKey): string
     {
-
         $request = VtigerRequest::post()
             ->withParameter('operation', 'login')
             ->withParameter('username', $username)
@@ -118,6 +116,21 @@ class VtigerApi
         return $response->sessionName;
     }
 
+    public function getSessionName():string
+    {
+        return $this->sessionName;
+    }
+
+    public function getListTypes(): VtigerResponse
+    {
+        $req = VtigerRequest::get()
+            ->withParameter('sessionName', $this->sessionName)
+            ->withParameter('operation', 'listtypes')
+            ->return(VtigerResponse::class);
+
+        return $this->execute($req);
+    }
+
     /**
      * Method that executes a Vtiger APi request
      * @param VtigerRequest $request
@@ -127,10 +140,15 @@ class VtigerApi
      */
     public function execute(VtigerRequest $request)
     {
-        switch($request->getRequestType()){
-            case 'GET': $response = $this->getRequest($request); break;
-            case 'POST': $response = $this->postRequest($request); break;
-            default: throw new Exception('Unknown request type');
+        switch ($request->getRequestType()) {
+            case 'GET':
+                $response = $this->getRequest($request);
+                break;
+            case 'POST':
+                $response = $this->postRequest($request);
+                break;
+            default:
+                throw new Exception('Unknown request type');
         }
 
         $responseClass = $request->getReturnType();
@@ -143,7 +161,8 @@ class VtigerApi
      * @return ResponseInterface
      * @throws ClientExceptionInterface
      */
-    private function getRequest(VtigerRequest $request):ResponseInterface {
+    private function getRequest(VtigerRequest $request): ResponseInterface
+    {
         $params = http_build_query($request->getParameters());
 
         $req = $this->client->createRequest('GET', $this->endpoint . '?' . $params);
@@ -156,7 +175,7 @@ class VtigerApi
      * @return ResponseInterface
      * @throws ClientExceptionInterface
      */
-    public function postRequest(VtigerRequest $request):ResponseInterface
+    public function postRequest(VtigerRequest $request): ResponseInterface
     {
         $body = $this->client->createStream(http_build_query($request->getParameters()));
 

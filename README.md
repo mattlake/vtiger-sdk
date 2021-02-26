@@ -15,33 +15,30 @@ $api = VtigerApi::endpoint($ENDPOINT)->login($USERNAME, $SECRET);
 ```
 
 ***
-### Get List Types
+## Making a GET Request
 
-The below call will get a list of modules available to the logged in user.
+Requests are build in a modular way, a request that got a list of modules available to the logged-in user would look something like this:
+```php
+// Create a request
+$request = \Trunk\VtigerSDK\Http\VtigerRequest::get()
+    ->withParameter('sessionName', $api->getSessionName()) // Obtained through the login method
+    ->withParameter('operation', 'listtypes') // operation being called
+    ->return(\Trunk\VtigerSDK\Http\VtigerResponse::class); // Desired return type
+
+// Execute the request
+$response = $api->execute($request);
+```
+
+***
+## Provided Common Requests
+### Get List Types
+The below call will get a list of modules available to the logged-in user.
 
 ```php
 $api->getListTypes();
 ```
 
-A successful call will have the following response in the form of an associative array:
-
-```php
-[
-  'types' => ["Accounts", "Contacts"],
-  'information' => [
-        'Accounts' => [
-           'isEntity' => true,
-           'label' => "Organizations",
-           'singular' => "Organization"
-        ],
-        'Contacts' => [
-            'isEntity' => true,
-            'label' => 'Contacts',
-            'singular' => 'Contact'
-       ]
-  ]
-]
-```
+A successful call will return a VtigerResponse object
 
 ***
 ### Describe Module
@@ -52,54 +49,8 @@ The below method returns an associative array containing details regarding a spe
 $api->describeModule('Accounts');
 ```
 
-The response would be structured like below
+A successful call will return a VtigerResponse object
 
-```php
-[
-    'label' => "Accounts",
-    'name' => "Accounts",
-    'createable' => true,
-    'updateable' => true,
-    'deleteable' => true,
-    'retrieveable' => true,
-    'fields' => [
-        [
-            'name' => "accountname",
-            'label' => "Organization Name",
-            'mandatory' => true,
-            'type' => [
-                'name' => "string"
-            ],
-            'nullable' => false,
-            'editable' => true,
-            'default' => ""
-        ],
-        [
-            'name' => "account_no",
-            'label' => "Organization Number",
-            'mandatory' => false,
-            'type' => [
-                'name' => "string"
-            ],
-            'nullable' => false,
-            'editable' => false,
-            'default' => ""
-        ],
-    'idPrefix' => "11",
-    'isEntity' => true,
-    'labelFields' => "accountname"
-]
-```
-
-***
-### Retrieve Vtiger Entity Record
-To retrieve a record from Vtiger use the following call
-
-```php
-$account = $api->retrieve('Accounts',12345);
-```
-
-This will return a VtigerEntity object
 
 ***
 ## Testing
