@@ -1,10 +1,9 @@
 <?php
 
+require_once __DIR__ . '/../src/VtigerApi.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-require_once __DIR__.'/../src/VtigerApi.php';
-require_once __DIR__.'/../vendor/autoload.php';
-
-use Trunk\VtigerApi\VtigerApi;
+use Trunk\VtigerSDK\VtigerApi;
 use DI\ContainerBuilder;
 
 beforeEach(function(){
@@ -19,5 +18,5 @@ afterEach(function(){
 });
 
 it('can get instance', function(){
-    expect(VtigerApi::getInstance($this->container->get('Psr18Client')))->toBeInstanceof(VtigerApi::class);
+    expect(VtigerApi::endpoint('https://www.endpoint.com'))->toBeInstanceof(VtigerApi::class);
 });
