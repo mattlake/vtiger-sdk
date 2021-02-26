@@ -7,9 +7,7 @@ A simple and clean SDK for interacting with a Vtiger API
 Connections to the API can be made using the following syntax
 
 ```php
-$api = VtigerApi::getInstance($Psr18HTTPClient)
-    ->setEndpoint('https://yoururlhere/webservice.php')
-    ->authenticate($username, $secret);
+$api = VtigerApi::endpoint($ENDPOINT)->login($USERNAME, $SECRET);
 ```
 
 ### Get List Types

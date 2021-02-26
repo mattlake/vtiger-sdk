@@ -1,151 +1,169 @@
 <?php
 
-namespace Trunk\VtigerApi;
+declare(strict_types=1);
 
-require_once __DIR__ . '/resources/RequestHandler.php';
-require_once __DIR__ . '/resources/VtigerEntity.php';
-require_once __DIR__ . '/resources/VtigerApiResponse.php';
+namespace Trunk\VtigerSDK;
 
-use Psr\Http\Client\ClientInterface;
-use Trunk\VtigerApi\Resources\RequestHandler;
-use Trunk\VtigerApi\Resources\VtigerApiResponse;
-use Trunk\VtigerApi\Resources\VtigerEntity;
+use Exception;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpClient\Psr18Client;
+use Trunk\VtigerSDK\Http\VtigerRequest;
+use Trunk\VtigerSDK\Http\VtigerResponse;
+
+require_once __DIR__ . '/Http/VtigerRequest.php';
+require_once __DIR__ . '/Http/VtigerResponse.php';
 
 class VtigerApi
 {
-    private static $instance;
-    private $endpoint;
+    /**
+     * SessionId used for authentication, populated by login method
+     * @var string
+     */
     private $sessionId;
-    private $requestHandler;
-    private $idPrefixCache = [];
+    /**
+     * The Vtiger Api endpoint
+     * eg. https://www.yourvtigerinstance.com/webservice.php
+     * @var string
+     */
+    private $endpoint;
 
-    private function __construct(ClientInterface $client)
+    /**
+     * @var Psr18Client
+     */
+    private $client;
+
+    /**
+     * VtigerApi constructor.
+     * @param string $endpoint The Vtiger APi Endpoint
+     */
+    private function __construct(string $endpoint)
     {
-        $this->requestHandler = new RequestHandler($client);
+        $this->endpoint = $endpoint;
+        $this->client = new Psr18Client();
     }
 
-    public static function getInstance(ClientInterface $client): self
+    /**
+     * Static method to create api instance and return
+     * @param string $endpoint
+     * @return VtigerApi
+     */
+    public static function endpoint(string $endpoint): VtigerApi
     {
-        if (empty(self::$instance)) {
-            self::$instance = new VtigerApi($client);
-        }
-
-        return self::$instance;
+        return new VtigerApi($endpoint);
     }
 
-    public function setEndpoint(string $address = null): self
+    /**
+     * Parent method to cover the entire login process
+     * @param string $username
+     * @param string $secret
+     * @return $this
+     * @throws Exception|ClientExceptionInterface
+     */
+    public function login(string $username, string $secret): self
     {
-        $this->endpoint = $address;
-        return $this;
-    }
-
-    public function authenticate(string $username, string $secret): self
-    {
-        if (!isset($this->endpoint)) {
-            throw new \Exception('URL not set');
-        }
-
         $token = $this->makeChallenge($username);
-        $hash = $this->makeKey($token, $secret);
-        $this->sessionId = $this->getSessionId($username, $hash);
+        $accessKey = $this->makeKey($token, $secret);
+        $this->sessionId = $this->getSessionId($username, $accessKey);
         return $this;
     }
 
-    private function makeChallenge(string $username): string
+    /**
+     * Initial API call to get the token used to create the accessKey
+     * @param $username
+     * @return string
+     * @throws Exception|ClientExceptionInterface
+     */
+    private function makeChallenge($username): string
     {
-        $params = [
-            'operation' => 'getchallenge',
-            'username' => $username
-        ];
+        $request = VtigerRequest::get()
+            ->withParameter('operation', 'getchallenge')
+            ->withParameter('username', $username)
+            ->return(VtigerResponse::class);
 
-        $content = $this->requestHandler->get($this->endpoint, $params);
+        $response = $this->execute($request);
 
-        if ($content->success == false) {
-            throw new \Exception($content->errorCode . ': ' . $content->errorMessage);
-        }
-
-        return $content->token;
+        return $response->token;
     }
 
+    /**
+     * This method creates the access key needed to get the session ID
+     * @param string $token
+     * @param string $secret
+     * @return string
+     */
     private function makeKey(string $token, string $secret): string
     {
         return md5($token . $secret);
     }
 
+    /**
+     * This method generate the session id that is needed for all subsequent API requests
+     * @param string $username
+     * @param string $accessKey
+     * @return string
+     * @throws Exception|ClientExceptionInterface
+     */
     private function getSessionId(string $username, string $accessKey): string
     {
-        $data = [
-            'operation' => 'login',
-            'username' => $username,
-            'accessKey' => $accessKey
-        ];
 
-        $content = $this->requestHandler->post($this->endpoint, $data);
+        $request = VtigerRequest::post()
+            ->withParameter('operation', 'login')
+            ->withParameter('username', $username)
+            ->withParameter('accessKey', $accessKey)
+            ->return(VtigerResponse::class);
 
-        if ($content->success == false) {
-            throw new \Exception($content['error']['code'] . ': ' . $content['error']['message']);
-        }
+        $response = $this->execute($request);
 
-        return $content->sessionName;
+        return $response->sessionName;
     }
 
-    public function logout(): void
+    /**
+     * Method that executes a Vtiger APi request
+     * @param VtigerRequest $request
+     * @return mixed
+     * @throws Exception
+     * @throws ClientExceptionInterface
+     */
+    public function execute(VtigerRequest $request)
     {
-        $data = ['operation' => 'logout', 'sessionName' => $this->sessionId];
-        $this->requestHandler->post($this->endpoint, $data);
+        switch($request->getRequestType()){
+            case 'GET': $response = $this->getRequest($request); break;
+            case 'POST': $response = $this->postRequest($request); break;
+            default: throw new Exception('Unknown request type');
+        }
+
+        $responseClass = $request->getReturnType();
+        return new $responseClass($response);
     }
 
-    public function getListTypes(): VtigerApiResponse
-    {
-        $data = ['operation' => 'listtypes', 'sessionName' => $this->sessionId];
-        $content = $this->requestHandler->get($this->endpoint, $data);
+    /**
+     * Method that handles the get request branch
+     * @param VtigerRequest $request
+     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     */
+    private function getRequest(VtigerRequest $request):ResponseInterface {
+        $params = http_build_query($request->getParameters());
 
-        if ($content->success == false) {
-            throw new \Exception($content->errorCode . ': ' . $content->errorMessage);
-        }
-
-        return $content;
+        $req = $this->client->createRequest('GET', $this->endpoint . '?' . $params);
+        return $this->client->sendRequest($req);
     }
 
-    public function describeModule(string $moduleName): VtigerApiResponse
+    /**
+     * Method that handles the post request branch
+     * @param VtigerRequest $request
+     * @return ResponseInterface
+     * @throws ClientExceptionInterface
+     */
+    public function postRequest(VtigerRequest $request):ResponseInterface
     {
-        $data = ['operation' => 'describe', 'sessionName' => $this->sessionId, 'elementType' => $moduleName];
-        $content = $this->requestHandler->get($this->endpoint, $data);
+        $body = $this->client->createStream(http_build_query($request->getParameters()));
 
-        if ($content->success == false) {
-            throw new \Exception($content->errorCode . ': ' . $content->errorMessage);
-        }
+        $req = $this->client->createRequest('POST', $this->endpoint)
+            ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
+            ->withBody($body);
 
-        // Add prefix ID to Cache
-        $this->idPrefixCache[$moduleName] = $content->idPrefix;
-
-        return $content;
-    }
-
-    public function retrieve(string $moduleName, int $id): VtigerEntity
-    {
-        $webserviceId = $this->buildWebserviceId($moduleName, $id);
-        $data = ['operation' => 'retrieve', 'sessionName' => $this->sessionId, 'id' => $webserviceId];
-        try {
-            $content = $this->requestHandler->get($this->endpoint, $data);
-        } catch (\Exception $e) {
-            echo $e->getMessage();
-            return false;
-        }
-
-        if ($content->success == false) {
-            throw new \Exception($content->errorCode . ': ' . $content->errorMessage);
-        }
-
-        return new VtigerEntity($moduleName, $content);
-    }
-
-    public function buildWebserviceId(string $moduleName, int $id): string
-    {
-        if (!in_array($moduleName, $this->idPrefixCache)) {
-            $this->describeModule($moduleName);
-        }
-
-        return $this->idPrefixCache[$moduleName] . 'x' . $id;
+        return $this->client->sendRequest($req);
     }
 }
