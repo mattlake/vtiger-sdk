@@ -1,4 +1,15 @@
 {
+  "name": "mattlake/vtiger-sdk",
+  "description": "A simple SDK for interacting with Vtiger Webservice",
+  "keywords": ["api","vtiger","sdk"],
+  "authors": [
+    {
+      "role": "developer",
+      "name": "Matt Lake",
+      "email": "matthewlake@aol.com",
+      "homepage": "http://www.matthewlake.co.uk"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "Trunk\\VtigerApi\\": "src/"
@@ -13,5 +24,8 @@
   },
   "require-dev": {
     "pestphp/pest": "^1.0"
+  },
+  "scripts": {
+    "test": "./vendor/bin/pest"
   }
 }
