@@ -93,3 +93,6 @@ $account = $api->retrieve('Accounts',12345);
 ```
 
 This will return a VtigerEntity object
+
+## Testing
+There is a full test suite built using [PestPHP](https://github.com/pestphp/pest)
