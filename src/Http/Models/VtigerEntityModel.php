@@ -1,8 +1,8 @@
 <?php
 
-namespace Trunk\VtigerSDK\Http;
+namespace Trunk\VtigerSDK\Http\Models;
 
-use Psr\Http\Message\ResponseInterface;
+use Trunk\VtigerSDK\Http\VtigerResponse;
 
 class VtigerEntityModel
 {
@@ -14,7 +14,6 @@ class VtigerEntityModel
 
     /**
      * VtigerEntityModel constructor.
-     * @param ResponseInterface|null $response
      */
     public function __construct()
     {

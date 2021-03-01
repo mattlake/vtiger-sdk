@@ -8,7 +8,7 @@ use Exception;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpClient\Psr18Client;
-use Trunk\VtigerSDK\Http\VtigerEntityModel;
+use Trunk\VtigerSDK\Http\Models\VtigerEntityModel;
 use Trunk\VtigerSDK\Http\VtigerRequest;
 use Trunk\VtigerSDK\Http\VtigerResponse;
 use Trunk\VtigerSDK\Http\ResponseHandler;
@@ -16,7 +16,6 @@ use Trunk\VtigerSDK\Http\ResponseHandler;
 require_once __DIR__ . '/Http/VtigerRequest.php';
 require_once __DIR__.'/Http/ResponseHandler.php';
 require_once __DIR__ . '/Http/VtigerResponse.php';
-require_once __DIR__ . '/Http/VtigerEntityModel.php';
 
 class VtigerApi
 {
@@ -36,7 +35,7 @@ class VtigerApi
      */
     private $client;
     /**
-     * Array of module -> webservice module ids, cached to avoid multipl calls
+     * Array of module -> webservice module ids, cached to avoid multiple calls
      * @var array
      */
     private $moduleIds = [];
@@ -170,7 +169,7 @@ class VtigerApi
      * Method to retrieve a Vtiger Entity record Model
      * @param string $moduleName
      * @param int $recordId
-     * @return VtigerRecordEntity
+     * @return VtigerEntityModel
      * @throws ClientExceptionInterface
      */
     public function getRecord(string $moduleName, int $recordId)

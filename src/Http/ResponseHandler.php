@@ -3,9 +3,11 @@
 namespace Trunk\VtigerSDK\Http;
 
 use Psr\Http\Message\ResponseInterface;
+use Trunk\VtigerSDK\Http\Models\VtigerEntityModel;
 
 require_once __DIR__.'/BaseResponse.php';
 require_once __DIR__.'/VtigerResponse.php';
+require_once __DIR__.'/Models/VtigerEntityModel.php';
 
 class ResponseHandler
 {

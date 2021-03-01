@@ -20,4 +20,4 @@ $api = VtigerApi::endpoint(config::API_ENDPOINT)->login(config::USERNAME, config
 $account = $api->getRecord('Accounts', 62856);
 echo $account->get('accountname');
 
-$ticket = new \Trunk\VtigerSDK\Http\VtigerEntityModel();
+$ticket = new \Trunk\VtigerSDK\Http\Models\VtigerEntityModel();
