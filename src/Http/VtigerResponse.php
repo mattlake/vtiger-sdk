@@ -6,10 +6,28 @@ use Psr\Http\Message\ResponseInterface;
 
 class VtigerResponse
 {
+    /**
+     * Success status of the response
+     * @var bool|mixed
+     */
     public $success = false;
+
+    /**
+     * Error code returned from the APi (If there was one)
+     * @var mixed|null
+     */
     public $errorCode = null;
+
+    /**
+     * Error message returned from the APi (If there was one)
+     * @var mixed|null
+     */
     public $errorMessage = null;
 
+    /**
+     * VtigerResponse constructor.
+     * @param ResponseInterface $response
+     */
     public function __construct(ResponseInterface $response)
     {
         $res = $this->parseData($response);
@@ -29,6 +47,12 @@ class VtigerResponse
         }
     }
 
+    // TODO this should be in an array or parent class
+    /**
+     * Convert PSR7 response to associative array
+     * @param ResponseInterface $response
+     * @return array
+     */
     private function parseData(ResponseInterface $response): array
     {
         return json_decode($response->getBody()->getContents(), true) ?? [];
