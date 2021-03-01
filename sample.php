@@ -17,4 +17,4 @@ $container = $containerBuilder->build();
 $api = VtigerApi::endpoint(config::API_ENDPOINT)->login(config::USERNAME, config::SECRET);
 
 // Get list types
-var_dump($api->getListTypes());
+var_dump($api->describeModule('Accounts'));

@@ -131,6 +131,16 @@ class VtigerApi
         return $this->execute($req);
     }
 
+    public function describeModule(string $moduleName):VtigerResponse {
+        $req = VtigerRequest::get()
+            ->withParameter('sessionName', $this->getSessionName())
+            ->withParameter('operation','describe')
+            ->withParameter('elementType', $moduleName)
+            ->return(VtigerResponse::class);
+
+        return $this->execute($req);
+    }
+
     /**
      * Method that executes a Vtiger APi request
      * @param VtigerRequest $request
