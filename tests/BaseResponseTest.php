@@ -1,18 +1,5 @@
 <?php
 
-//public function __construct(array $response){
-//    $this->responseArray = $response;
-//
-//    if (!empty($this->responseArray)) {
-//        $this->success = $this->responseArray['success'];
-//
-//        if ($this->success == false) {
-//            $this->errorCode = $this->responseArray['error']['code'];
-//            $this->errorMessage = $this->responseArray['error']['message'];
-//            return;
-//        }
-//    }
-
 it('can be constructed from successful response', function(){
     $response = [
         'success' => true,
