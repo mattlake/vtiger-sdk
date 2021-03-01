@@ -14,7 +14,7 @@ use Trunk\VtigerSDK\Http\VtigerResponse;
 use Trunk\VtigerSDK\Http\ResponseHandler;
 
 require_once __DIR__ . '/Http/VtigerRequest.php';
-require_once __DIR__.'/Http/ResponseHandler.php';
+require_once __DIR__ . '/Http/ResponseHandler.php';
 require_once __DIR__ . '/Http/VtigerResponse.php';
 
 class VtigerApi
@@ -44,10 +44,10 @@ class VtigerApi
      * VtigerApi constructor.
      * @param string $endpoint The Vtiger APi Endpoint
      */
-    private function __construct(string $endpoint)
+    private function __construct(string $endpoint, $client = null)
     {
         $this->endpoint = $endpoint;
-        $this->client = new Psr18Client();
+        $this->client = $client ?? new Psr18Client();
     }
 
     /**
@@ -55,9 +55,9 @@ class VtigerApi
      * @param string $endpoint
      * @return VtigerApi
      */
-    public static function endpoint(string $endpoint): VtigerApi
+    public static function endpoint(string $endpoint, $client = null): VtigerApi
     {
-        return new VtigerApi($endpoint);
+        return new VtigerApi($endpoint, $client);
     }
 
     /**
@@ -218,7 +218,7 @@ class VtigerApi
         $params = http_build_query($request->getParameters());
 
         $req = $this->client->createRequest('GET', $this->endpoint . '?' . $params);
-        $response =  $this->client->sendRequest($req);
+        $response = $this->client->sendRequest($req);
 
         return $this->parseResponse($response);
     }
@@ -242,9 +242,9 @@ class VtigerApi
         return $this->parseResponse($response);
     }
 
-    public function parseResponse(ResponseInterface $response):array
+    public function parseResponse(ResponseInterface $response): array
     {
-        if($response->getStatusCode() === 200) {
+        if ($response->getStatusCode() === 200) {
             return json_decode($response->getBody()->getContents(), true) ?? [];
         }
 
@@ -252,6 +252,7 @@ class VtigerApi
     }
 
     // TODO this could be in a trait
+
     /**
      * Method to generate a webservice id from the module name and the record id
      * @param string $moduleName
@@ -268,6 +269,7 @@ class VtigerApi
     }
 
     //TODO add the below method to a cache class
+
     /**
      * method to add the id prefix to the cache
      * @param $moduleName
