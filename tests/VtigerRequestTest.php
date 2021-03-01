@@ -43,6 +43,13 @@ it(
 );
 
 it(
+    'throws an exception if invalid request type used',
+    function () {
+        new VtigerRequest('PATCH');
+    }
+)->throws(Exception::class);
+
+it(
     'can be instantiated using ::get()',
     function () {
         $testClass = VtigerRequest::get();
@@ -75,4 +82,11 @@ it(
         expect($testClass->getReturnType())->toBe(VtigerResponse::class);
     }
 );
+
+it(
+    'throws an exception if an invalid return type is set',
+    function () {
+        VtigerRequest::get()->return(Garbage::class);
+    }
+)->throws(Exception::class);
 

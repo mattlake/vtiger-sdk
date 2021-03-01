@@ -17,4 +17,7 @@ $container = $containerBuilder->build();
 $api = VtigerApi::endpoint(config::API_ENDPOINT)->login(config::USERNAME, config::SECRET);
 
 // Get list types
-var_dump($api->describeModule('Accounts'));
+$account = $api->getRecord('Accounts', 62856);
+echo $account->get('accountname');
+
+$ticket = new \Trunk\VtigerSDK\Http\VtigerEntityModel();

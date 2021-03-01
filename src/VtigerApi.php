@@ -8,11 +8,13 @@ use Exception;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpClient\Psr18Client;
+use Trunk\VtigerSDK\Http\VtigerEntityModel;
 use Trunk\VtigerSDK\Http\VtigerRequest;
 use Trunk\VtigerSDK\Http\VtigerResponse;
 
 require_once __DIR__ . '/Http/VtigerRequest.php';
 require_once __DIR__ . '/Http/VtigerResponse.php';
+require_once __DIR__ . '/Http/VtigerEntityModel.php';
 
 class VtigerApi
 {
@@ -31,6 +33,11 @@ class VtigerApi
      * @var Psr18Client
      */
     private $client;
+    /**
+     * Array of module -> webservice module ids, cached to avoid multipl calls
+     * @var array
+     */
+    private $moduleIds = [];
 
     /**
      * VtigerApi constructor.
@@ -120,7 +127,7 @@ class VtigerApi
      * Method to return the session name used to authenticate each request
      * @return string
      */
-    public function getSessionName():string
+    public function getSessionName(): string
     {
         return $this->sessionName;
     }
@@ -146,12 +153,33 @@ class VtigerApi
      * @return VtigerResponse
      * @throws ClientExceptionInterface
      */
-    public function describeModule(string $moduleName):VtigerResponse {
+    public function describeModule(string $moduleName): VtigerResponse
+    {
         $req = VtigerRequest::get()
             ->withParameter('sessionName', $this->getSessionName())
-            ->withParameter('operation','describe')
+            ->withParameter('operation', 'describe')
             ->withParameter('elementType', $moduleName)
             ->return(VtigerResponse::class);
+
+        return $this->execute($req);
+    }
+
+    /**
+     * Method to retrieve a Vtiger Entity record Model
+     * @param string $moduleName
+     * @param int $recordId
+     * @return VtigerRecordEntity
+     * @throws ClientExceptionInterface
+     */
+    public function getRecord(string $moduleName, int $recordId)
+    {
+        $webserviceId = $this->generateWebserviceId($moduleName, $recordId);
+
+        $req = VtigerRequest::get()
+            ->withParameter('sessionName', $this->getSessionName())
+            ->withParameter('operation', 'retrieve')
+            ->withParameter('id', $webserviceId)
+            ->return(VtigerEntityModel::class);
 
         return $this->execute($req);
     }
@@ -209,5 +237,33 @@ class VtigerApi
             ->withBody($body);
 
         return $this->client->sendRequest($req);
+    }
+
+    // TODO this could be in a trait
+    /**
+     * Method to generate a webservice id from the module name and the record id
+     * @param string $moduleName
+     * @param int $recordId
+     * @return string
+     */
+    private function generateWebserviceId(string $moduleName, int $recordId): string
+    {
+        if (!isset($this->moduleIds[$moduleName])) {
+            $this->populateModuleId($moduleName);
+        }
+
+        return $this->moduleIds[$moduleName] . 'x' . $recordId;
+    }
+
+    //TODO add the below method to a cache class
+    /**
+     * method to add the id prefix to the cache
+     * @param $moduleName
+     * @throws ClientExceptionInterface
+     */
+    private function populateModuleId($moduleName): void
+    {
+        $response = $this->describeModule($moduleName);
+        $this->moduleIds[$moduleName] = $response->idPrefix;
     }
 }
