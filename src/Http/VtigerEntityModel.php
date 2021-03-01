@@ -6,7 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 
 // TODO this feels like it is doing to much, The entity should probably be seperate from the response
 
-class VtigerEntityModel
+class VtigerEntityModel extends BaseResponse
 {
     /**
      * Array of the populate fields for the Entity

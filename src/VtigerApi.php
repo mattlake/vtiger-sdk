@@ -11,8 +11,10 @@ use Symfony\Component\HttpClient\Psr18Client;
 use Trunk\VtigerSDK\Http\VtigerEntityModel;
 use Trunk\VtigerSDK\Http\VtigerRequest;
 use Trunk\VtigerSDK\Http\VtigerResponse;
+use Trunk\VtigerSDK\Http\ResponseHandler;
 
 require_once __DIR__ . '/Http/VtigerRequest.php';
+require_once __DIR__.'/Http/ResponseHandler.php';
 require_once __DIR__ . '/Http/VtigerResponse.php';
 require_once __DIR__ . '/Http/VtigerEntityModel.php';
 
@@ -204,8 +206,7 @@ class VtigerApi
                 throw new Exception('Unknown request type');
         }
 
-        $responseClass = $request->getReturnType();
-        return new $responseClass($response);
+        return ResponseHandler::handle($request->getReturnType(), $response);
     }
 
     /**
