@@ -116,11 +116,20 @@ class VtigerApi
         return $response->sessionName;
     }
 
+    /**
+     * Method to return the session name used to authenticate each request
+     * @return string
+     */
     public function getSessionName():string
     {
         return $this->sessionName;
     }
 
+    /**
+     * Method to get a list of available modules
+     * @return VtigerResponse
+     * @throws ClientExceptionInterface
+     */
     public function getListTypes(): VtigerResponse
     {
         $req = VtigerRequest::get()
@@ -131,6 +140,12 @@ class VtigerApi
         return $this->execute($req);
     }
 
+    /**
+     * Method to give fields and other information for a given module
+     * @param string $moduleName
+     * @return VtigerResponse
+     * @throws ClientExceptionInterface
+     */
     public function describeModule(string $moduleName):VtigerResponse {
         $req = VtigerRequest::get()
             ->withParameter('sessionName', $this->getSessionName())
