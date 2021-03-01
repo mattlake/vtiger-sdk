@@ -23,7 +23,8 @@
     "ext-json": "*"
   },
   "require-dev": {
-    "pestphp/pest": "^1.0"
+    "pestphp/pest": "^1.0",
+    "mockery/mockery": "^1.4"
   },
   "scripts": {
     "test": "./vendor/bin/pest"

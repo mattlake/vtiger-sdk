@@ -1,11 +1,28 @@
 <?php
 
+use Mockery\Mock;
 use Trunk\VtigerSDK\Http\Models\VtigerEntityModel;
+use Trunk\VtigerSDK\Http\VtigerResponse;
 
 require_once __DIR__.'/../src/Http/Models/VtigerEntityModel.php';
+require_once __DIR__.'/../src/Http/VtigerResponse.php';
 
 it('can instantiate an empty model', function(){
     expect(new VtigerEntityModel())->toBeInstanceOf(VtigerEntityModel::class);
+});
+
+it('can be instantiated using createFromReponse() method', function(){
+
+    $res = Mockery::instanceMock('Trunk\VtigerSDK\Http\VtigerResponse');
+    $res->success = true;
+    $res->responseArray['result'] = [
+        'test' => 'pass',
+        'int' => 123
+    ];
+
+    $result = VtigerEntityModel::createFromResponse($res);
+    Mockery::close();
+    expect($result->get('test'))->toBe('pass');
 });
 
 it('can get and set strings to the valueMap', function(){
