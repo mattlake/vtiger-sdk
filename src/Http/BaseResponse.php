@@ -24,13 +24,21 @@ class BaseResponse
      */
     public $errorMessage = null;
 
+    /**
+     * Associative array of the response data for access by child classes
+     * @var array
+     */
     public $responseArray = [];
 
+    /**
+     * BaseResponse constructor.
+     * @param ResponseInterface $response
+     */
     public function __construct(ResponseInterface $response){
 
         $this->responseArray = $this->parseData($response);
 
-        if (!empty($res)) {
+        if (!empty($this->responseArray)) {
             $this->success = $this->responseArray['success'];
 
             if ($this->success == false) {
@@ -41,6 +49,11 @@ class BaseResponse
         }
     }
 
+    /**
+     * method to convert PSR7 response data into a associative array
+     * @param ResponseInterface $response
+     * @return array
+     */
     private function parseData(ResponseInterface $response): array
     {
         return json_decode($response->getBody()->getContents(), true) ?? [];

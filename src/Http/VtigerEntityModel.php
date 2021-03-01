@@ -4,9 +4,7 @@ namespace Trunk\VtigerSDK\Http;
 
 use Psr\Http\Message\ResponseInterface;
 
-// TODO this feels like it is doing to much, The entity should probably be seperate from the response
-
-class VtigerEntityModel extends BaseResponse
+class VtigerEntityModel
 {
     /**
      * Array of the populate fields for the Entity
@@ -18,36 +16,23 @@ class VtigerEntityModel extends BaseResponse
      * VtigerEntityModel constructor.
      * @param ResponseInterface|null $response
      */
-    public function __construct(ResponseInterface $response = null)
+    public function __construct()
     {
-        if (is_null($response)) {
-            return;
-        }
-
-        $res = $this->parseData($response);
-
-        if (!empty($res)) {
-            if ($res['success'] == false) {
-                $this->errorCode = $res['error']['code'];
-                $this->errorMessage = $res['error']['message'];
-                return;
-            }
-
-            foreach ($res['result'] as $k => $v) {
-                $this->valueMap[$k] = $v;
-            }
-        }
+        //
     }
 
-    // TODO this should be in a trait or parent class
     /**
-     * Method to convert response to Assoc array
-     * @param ResponseInterface $response
-     * @return array
+     * method to populate an Entity Model with data from the API response
+     * @param VtigerResponse $response
+     * @return VtigerEntityModel
      */
-    private function parseData(ResponseInterface $response): array
+    public static function createFromResponse(VtigerResponse $response): VtigerEntityModel
     {
-        return json_decode($response->getBody()->getContents(), true) ?? [];
+        $entity = new VtigerEntityModel();
+        foreach ($response->responseArray['result'] as $k => $v) {
+            $entity->valueMap[$k] = $v;
+        }
+        return $entity;
     }
 
     /**
