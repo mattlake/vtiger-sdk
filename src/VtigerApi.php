@@ -204,7 +204,6 @@ class VtigerApi
             default:
                 throw new Exception('Unknown request type');
         }
-
         return ResponseHandler::handle($request->getReturnType(), $response);
     }
 
@@ -214,12 +213,14 @@ class VtigerApi
      * @return ResponseInterface
      * @throws ClientExceptionInterface
      */
-    private function getRequest(VtigerRequest $request): ResponseInterface
+    private function getRequest(VtigerRequest $request): array
     {
         $params = http_build_query($request->getParameters());
 
         $req = $this->client->createRequest('GET', $this->endpoint . '?' . $params);
-        return $this->client->sendRequest($req);
+        $response =  $this->client->sendRequest($req);
+
+        return $this->parseResponse($response);
     }
 
     /**
@@ -228,7 +229,7 @@ class VtigerApi
      * @return ResponseInterface
      * @throws ClientExceptionInterface
      */
-    public function postRequest(VtigerRequest $request): ResponseInterface
+    public function postRequest(VtigerRequest $request): array
     {
         $body = $this->client->createStream(http_build_query($request->getParameters()));
 
@@ -236,7 +237,18 @@ class VtigerApi
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withBody($body);
 
-        return $this->client->sendRequest($req);
+        $response = $this->client->sendRequest($req);
+
+        return $this->parseResponse($response);
+    }
+
+    public function parseResponse(ResponseInterface $response):array
+    {
+        if($response->getStatusCode() === 200) {
+            return json_decode($response->getBody()->getContents(), true) ?? [];
+        }
+
+        return json_decode($response);
     }
 
     // TODO this could be in a trait

@@ -17,7 +17,7 @@ class ResponseHandler
      * @param ResponseInterface $response
      * @return VtigerEntityModel|VtigerResponse
      */
-    public static function handle(string $responseClass, ResponseInterface $response)
+    public static function handle(string $responseClass, array $response)
     {
         $resp = new VtigerResponse($response);
 

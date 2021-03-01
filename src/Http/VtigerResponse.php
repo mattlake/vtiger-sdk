@@ -10,12 +10,14 @@ class VtigerResponse extends BaseResponse
      * VtigerResponse constructor.
      * @param ResponseInterface $response
      */
-    public function __construct(ResponseInterface $response)
+    public function __construct(array $response)
     {
         parent::__construct($response);
 
-        foreach ($this->responseArray['result'] as $k => $v) {
-            $this->$k = $v;
+        if (isset($this->responseArray['result'])) {
+            foreach ($this->responseArray['result'] as $k => $v) {
+                $this->$k = $v;
+            }
         }
     }
 }

@@ -34,9 +34,8 @@ class BaseResponse
      * BaseResponse constructor.
      * @param ResponseInterface $response
      */
-    public function __construct(ResponseInterface $response){
-
-        $this->responseArray = $this->parseData($response);
+    public function __construct(array $response){
+        $this->responseArray = $response;
 
         if (!empty($this->responseArray)) {
             $this->success = $this->responseArray['success'];
@@ -47,15 +46,5 @@ class BaseResponse
                 return;
             }
         }
-    }
-
-    /**
-     * method to convert PSR7 response data into a associative array
-     * @param ResponseInterface $response
-     * @return array
-     */
-    private function parseData(ResponseInterface $response): array
-    {
-        return json_decode($response->getBody()->getContents(), true) ?? [];
     }
 }
