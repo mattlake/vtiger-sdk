@@ -1,7 +1,11 @@
 {
   "name": "mattlake/vtiger-sdk",
   "description": "A simple SDK for interacting with Vtiger Webservice",
-  "keywords": ["api","vtiger","sdk"],
+  "keywords": [
+    "api",
+    "vtiger",
+    "sdk"
+  ],
   "authors": [
     {
       "role": "developer",
@@ -17,14 +21,14 @@
   },
   "require": {
     "php-di/php-di": "^6.3",
-    "symfony/http-client": "^5.2",
-    "nyholm/psr7": "^1.4",
-    "psr/http-client": "^1.0",
     "ext-json": "*"
   },
   "require-dev": {
     "pestphp/pest": "^1.0",
-    "mockery/mockery": "^1.4"
+    "mockery/mockery": "^1.4",
+    "symfony/http-client": "^5.2",
+    "nyholm/psr7": "^1.4",
+    "psr/http-client": "^1.0"
   },
   "scripts": {
     "test": "./vendor/bin/pest"

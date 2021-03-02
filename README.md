@@ -3,7 +3,13 @@
 ![](https://img.shields.io/github/last-commit/mattlake/vtiger-sdk?style=flat-square)
 ***
 
-A simple and clean SDK for interacting with a Vtiger API
+A simple and clean SDK for interacting with a Vtiger API.
+
+This SDK does not include a Http client (Guzzle, Symfony HttpClient etc), it relies on one being provided that meets
+PSR18 and uses PSR7 messages.
+
+By reusing Psr18 compliant Http clients that are already in the code base removes the need for multiple dependecies
+doing the same job and adding complexity.
 
 ***
 
@@ -12,7 +18,7 @@ A simple and clean SDK for interacting with a Vtiger API
 Connections to the API can be made using the following syntax
 
 ```php
-$api = VtigerApi::endpoint($ENDPOINT)->login($USERNAME, $SECRET);
+$api = VtigerApi::endpoint($ENDPOINT, $PSR18_CLIENT)->login($USERNAME, $SECRET);
 ```
 
 ***
@@ -32,7 +38,9 @@ $request = \Trunk\VtigerSDK\Http\VtigerRequest::get()
 // Execute the request
 $response = $api->execute($request);
 ```
+
 ***
+
 ## Making a POST Request
 
 POST requests are built using the same syntax as a GET request
@@ -50,13 +58,17 @@ $response = $this->execute($request);
 ```
 
 ***
+
 ## Return Types
+
 ### Vtiger Response
+
 A Vtiger Response is the default return type for an API request.
 
 It is a simple class structured as follows:
 
 #### VtigerResponse
+
 + public success (bool)
 + public errorCode (string)
 + public errorMessage (string)
@@ -65,10 +77,13 @@ It is a simple class structured as follows:
 + ...
 
 ### Vtiger Entity Model
+
 #### VtigerEntityModel
+
 + private valueMap[] : An array of the data associated to the record
 + get(): Method to retrieve value from valueMap
 + set(): method to set values in the valueMap
+
 ***
 
 ## Provided Common Requests

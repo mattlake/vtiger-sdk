@@ -6,6 +6,7 @@ namespace Trunk\VtigerSDK;
 
 use Exception;
 use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpClient\Psr18Client;
 use Trunk\VtigerSDK\Http\Models\VtigerEntityModel;
@@ -43,19 +44,21 @@ class VtigerApi
     /**
      * VtigerApi constructor.
      * @param string $endpoint The Vtiger APi Endpoint
+     * @param ClientInterface $client
      */
-    private function __construct(string $endpoint, $client = null)
+    private function __construct(string $endpoint, ClientInterface $client)
     {
         $this->endpoint = $endpoint;
-        $this->client = $client ?? new Psr18Client();
+        $this->client = $client;
     }
 
     /**
      * Static method to create api instance and return
      * @param string $endpoint
+     * @param ClientInterface $client
      * @return VtigerApi
      */
-    public static function endpoint(string $endpoint, $client = null): VtigerApi
+    public static function endpoint(string $endpoint, ClientInterface $client): VtigerApi
     {
         return new VtigerApi($endpoint, $client);
     }
@@ -210,7 +213,7 @@ class VtigerApi
     /**
      * Method that handles the get request branch
      * @param VtigerRequest $request
-     * @return ResponseInterface
+     * @return array
      * @throws ClientExceptionInterface
      */
     private function getRequest(VtigerRequest $request): array

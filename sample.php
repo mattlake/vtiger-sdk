@@ -14,7 +14,7 @@ $containerBuilder->addDefinitions(__DIR__ . '/deps.php');
 $container = $containerBuilder->build();
 
 // Login to APi
-$api = VtigerApi::endpoint(config::API_ENDPOINT)->login(config::USERNAME, config::SECRET);
+$api = VtigerApi::endpoint(config::API_ENDPOINT, $container->get('Psr18Client'))->login(config::USERNAME, config::SECRET);
 
 // Get list types
 $account = $api->getRecord('Accounts', 62856);

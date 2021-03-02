@@ -8,5 +8,5 @@ use Trunk\VtigerSDK\VtigerApi;
 
 
 it('can get instance using ::endpoint() method', function(){
-    expect(VtigerApi::endpoint('https://www.endpoint.com'))->toBeInstanceof(VtigerApi::class);
+    expect(VtigerApi::endpoint('https://www.endpoint.com', new \Symfony\Component\HttpClient\Psr18Client()))->toBeInstanceof(VtigerApi::class);
 });
